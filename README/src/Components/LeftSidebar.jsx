@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import materialsData from "../Data/materials_kb.json";
 
-const LeftSidebar = ({ onDragStart }) => {
+const LeftSidebar = ({ onDragStart = () => {} }) => { // ← لو مش متمرر، يبقى dummy function
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState(materialsData);
 
@@ -29,7 +29,7 @@ const LeftSidebar = ({ onDragStart }) => {
           draggable
           onDragStart={(e) => {
             e.dataTransfer.setData("application/json", JSON.stringify(mat));
-            onDragStart(mat);
+            onDragStart(mat); // ← لو مفيش function متمررة، مش هيكسر الكود
           }}
           style={{
             padding: "6px",
