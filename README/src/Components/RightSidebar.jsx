@@ -27,11 +27,15 @@ const RightSidebar = ({
         }}
       >
 
-        <option value="">Select condition</option>
+        <option value="">
+          {reactions.length === 0
+            ? "Add reactants first"
+            : "Select condition"}
+        </option>
 
         {reactions.map((r, index) => (
           <option key={index} value={index}>
-            {r.conditions}
+            {r.conditions.trim()}
           </option>
         ))}
 
@@ -68,19 +72,17 @@ const RightSidebar = ({
           gap: "10px",
         }}
       >
-<button
-  onClick={() => {
-    console.log("Start clicked");
-    onStartReaction();
-  }}
-  style={{
-    backgroundColor: "lightblue",
-    border: "none",
-    height: "30px",
-  }}
->
-  Start Reaction
-</button>
+
+        <button
+          onClick={onStartReaction}
+          style={{
+            backgroundColor: "lightblue",
+            border: "none",
+            height: "30px",
+          }}
+        >
+          Start Reaction
+        </button>
 
         <button
           onClick={onReset}

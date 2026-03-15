@@ -16,7 +16,6 @@ async function callPredictAPI(reactants, conditions) {
 
     const sessionHash = Math.random().toString(36).substring(2, 14);
 
-    // 1 إرسال الطلب
     const joinResponse = await fetch(
       "https://nadamomen26-simu-api.hf.space/gradio_api/queue/join",
       {
@@ -36,7 +35,6 @@ async function callPredictAPI(reactants, conditions) {
     const joinResult = await joinResponse.json();
     console.log("JOIN RESPONSE:", joinResult);
 
-    // 2 جلب النتيجة
     const dataResponse = await fetch(
       `https://nadamomen26-simu-api.hf.space/gradio_api/queue/data?session_hash=${sessionHash}`
     );
@@ -44,7 +42,6 @@ async function callPredictAPI(reactants, conditions) {
     const text = await dataResponse.text();
     console.log("QUEUE DATA:", text);
 
-    // استخراج النص الذي يحتوي على product و safety
     const productMatch = text.match(/'product':\s*'([^']+)'/);
     const safetyMatch = text.match(/'safety':\s*'([^']+)'/);
 
@@ -61,6 +58,7 @@ async function callPredictAPI(reactants, conditions) {
     throw error;
   }
 }
+
 /* ================= MATERIAL ================= */
 
 function PlacedMaterial({ mat }) {
@@ -130,6 +128,7 @@ function DropHandler({ dropRequest, onPlace, beakerBounds }) {
 /* ================= LAB SCENE ================= */
 
 const LabScene = () => {
+
   const [dropRequest, setDropRequest] = useState(null);
   const [placedMaterials, setPlacedMaterials] = useState([]);
   const [beakerBounds, setBeakerBounds] = useState(null);
@@ -148,12 +147,31 @@ const LabScene = () => {
   /* ================= MATCH DATASET ================= */
 
   const matchedReactions = useMemo(() => {
+
     if (reactantsInBeaker.length < 2) return [];
 
+    const beakerSet = new Set(
+      reactantsInBeaker.map((r) => r.trim().toLowerCase())
+    );
+
     return reactionsData.filter((r) => {
-      const rr = r.reactants.split("+").map((x) => x.trim()).sort();
-      return JSON.stringify(rr) === JSON.stringify(reactantsInBeaker);
+
+      const datasetReactants = r.reactants
+        .split("+")
+        .map((x) => x.trim().toLowerCase());
+
+      const datasetSet = new Set(datasetReactants);
+
+      if (datasetSet.size !== beakerSet.size) return false;
+
+      for (let item of datasetSet) {
+        if (!beakerSet.has(item)) return false;
+      }
+
+      return true;
+
     });
+
   }, [reactantsInBeaker]);
 
   /* ================= DROP ================= */
@@ -172,34 +190,37 @@ const LabScene = () => {
   /* ================= START REACTION ================= */
 
   const startReaction = async () => {
-    if (!selectedReaction) {
-      alert("Please select reaction condition");
-      return;
-    }
 
-    try {
-      const reactantsString = [...reactantsInBeaker].sort().join(" + ");
+  if (!selectedReaction) {
+    alert("Please select reaction condition");
+    return;
+  }
 
-      console.log("Reactants:", reactantsString);
-      console.log("Conditions:", selectedReaction.conditions);
+  try {
 
-      const result = await callPredictAPI(
-        reactantsString,
-        selectedReaction.conditions
-      );
+    // نأخذ النص مباشرة من الداتاسيت
+    const reactantsString = selectedReaction.reactants.trim();
+    const conditionString = selectedReaction.conditions.trim();
 
-      console.log("AI RESPONSE:", result);
+    console.log("Reactants sent to AI:", reactantsString);
+    console.log("Conditions sent to AI:", conditionString);
 
-      setAiResult({
-  products: result?.product || "Unknown Product",
-  observation: result?.safety || "Reaction completed",
-});
+    const result = await callPredictAPI(
+      reactantsString,
+      conditionString
+    );
 
-      setReactionStarted(true);
-    } catch (error) {
-      console.error("Reaction failed:", error);
-    }
-  };
+    setAiResult({
+      products: result?.product || "Unknown Product",
+      observation: result?.safety || "Reaction completed",
+    });
+
+    setReactionStarted(true);
+
+  } catch (error) {
+    console.error("Reaction failed:", error);
+  }
+};
 
   /* ================= RESET ================= */
 
@@ -212,6 +233,7 @@ const LabScene = () => {
 
   return (
     <div className="root-layout">
+
       <LeftSidebar />
 
       <div
@@ -219,19 +241,23 @@ const LabScene = () => {
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
       >
+
         <Canvas camera={{ position: [0, 2, 4], fov: 50 }}>
+
           <ambientLight intensity={0.7} />
           <directionalLight position={[5, 10, 5]} intensity={1.2} />
 
           <OrbitControls />
 
           <Suspense fallback={null}>
+
             <Environment preset="studio" />
 
             <Beaker
               reactionStarted={reactionStarted}
               onReady={setBeakerBounds}
             />
+
           </Suspense>
 
           <DropHandler
@@ -253,7 +279,6 @@ const LabScene = () => {
             <>
               <mesh position={[0, beakerBounds.bottomY + 0.45, 0.35]}>
                 <sphereGeometry args={[0.18, 32, 32]} />
-
                 <meshStandardMaterial
                   color="#00ff99"
                   transparent
@@ -270,7 +295,9 @@ const LabScene = () => {
               </Text>
             </>
           )}
+
         </Canvas>
+
       </div>
 
       <RightSidebar
@@ -282,6 +309,7 @@ const LabScene = () => {
         onStartReaction={startReaction}
         onReset={resetLab}
       />
+
     </div>
   );
 };
