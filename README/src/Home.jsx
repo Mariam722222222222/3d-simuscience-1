@@ -1,247 +1,176 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import video1 from "./assets/img1.mp4";
-import video2 from "./assets/img2.mp4";
-import video3 from "./assets/img3.mp4";
- import oxidationVideo from "./assets/oxidation.mp4";
- import additionVideo from "./assets/Addition.mp4";
- import catalyticVideo from "./assets/Catalystic.mp4";
- import compositionVideo from "./assets/Compustionofhydro.mp4";
- import condensationVideo from "./assets/condinsation.mp4"; 
- import combustionVideo from "./assets/Combu.mp4";
- import decompositionVideo from "./assets/decomposition.mp4";
- import disproportionationVideo from "./assets/desproparation.mp4"; 
- import doubleReplacementVideo from "./assets/doubledisplacement.mp4"; 
- import hydrolysisVideo from "./assets/hydro.mp4"; 
- import neutralizationVideo from "./assets/neutrilization.mp4";
- import redoxVideo from "./assets/redox.mp4";
- import singleReplacementVideo from "./assets/singlereplacement.mp4";
- import photochemicalVideo from "./assets/photochemical.mp4";
- import precipitationVideo from "./assets/preception.mp4";
- import polymerizationVideo from "./assets/polymeriation.mp4";
-export default function Home() {
-  const navigate = useNavigate();
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Environment, Float, Sparkles } from "@react-three/drei";
+import * as THREE from "three";
 
-  // كل تجربة عندها دالة navigate خاصة
-  const goToExperiment1 = () => navigate("/oxidation-reduction");
-  const goToExperiment2 = () => navigate("/Addition");
-  const goToExperiment3 = () => navigate("/Catalytic");
-  const goToExperiment4 = () => navigate("/Compustionofhydro");
-  const goToExperiment5 = () => navigate("/Condinsation");
-  const goToExperiment6 = () => navigate("/Cumbustion");
-  const goToExperiment7 = () => navigate("/Decomposition");
-  const goToExperiment8 = () => navigate("/Disproportionation");
-  const goToExperiment9 = () => navigate("/DoubleReplacment");
-  const goToExperiment10 = () => navigate("/Hydrolysis");
-  const goToExperiment11 = () => navigate("/Neutrlization");
-  const goToExperiment12 = () => navigate("/Redox");
-  const goToExperiment13 = () => navigate("/SingleReplacement");
-  const goToExperiment14 = () => navigate("/photochmical");
-  const goToExperiment15 = () => navigate("/preceptition");
-  const goToExperiment16 = () => navigate("/polymerization"); 
-  // const goToExperiment17 = () => navigate("/AcideBasereaction");//11
-  // const goToExperiment18 = () => navigate("/compination");
-  // const goToExperiment19 = () => navigate("/Electrolysis");
-  // const goToExperiment20 = () => navigate("/Substiution");////1
+import LeftSidebar from "./LeftSidebar";
+import RightSidebar from "./RightSidebar";
+import Beaker from "./Beaker";
+import reactionsData from "../Data/csvjson (1).json";
 
-  const goToLab = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      const hasAccount = window.confirm(
-        "You are not logged in. Do you already have an account?"
-      );
-      if (hasAccount) navigate("/login", { state: { redirectToLab: true } });
-      else navigate("/register", { state: { redirectToLab: true } });
-    } else {
-      navigate("/LabScene");
+function ChemicalBackground() {
+  return (
+    <group>
+      <Sparkles count={150} scale={15} size={1.5} speed={0.4} color="#00d4ff" opacity={0.2} />
+      <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+        <mesh position={[-5, 2, -10]}>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#7b61ff" emissive="#7b61ff" emissiveIntensity={0.5} transparent opacity={0.3} />
+        </mesh>
+      </Float>
+      <Float speed={1.5} rotationIntensity={1} floatIntensity={2}>
+        <mesh position={[6, -3, -8]}>
+          <octahedronGeometry args={[1.5]} />
+          <meshStandardMaterial color="#00d4ff" emissive="#00d4ff" emissiveIntensity={0.5} transparent opacity={0.2} />
+        </mesh>
+      </Float>
+    </group>
+  );
+}
+
+export default function LabScene() {
+  const [placedMaterials, setPlacedMaterials] = useState([]);
+  const [selectedReaction, setSelectedReaction] = useState(null);
+  const [phase, setPhase] = useState("idle");
+  const [result, setResult] = useState(null);
+  const [beakerBounds, setBeakerBounds] = useState(null);
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+
+  // 🔹 إصلاح دالة السحب والإفلات
+  const handleDrop = (e) => {
+    e.preventDefault();
+    try {
+      const data = e.dataTransfer.getData("application/json");
+      if (!data) return;
+      
+      const material = JSON.parse(data);
+      // إضافة ID فريد لكل مادة يتم سحبها لضمان استقرار العرض
+      setPlacedMaterials((prev) => [...prev, { ...material, instanceId: Date.now() }]);
+    } catch (err) {
+      console.error("Error parsing dropped material:", err);
     }
   };
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("visible");
-        });
-      },
-      { threshold: 0.2 }
-    );
+  const handleDragOver = (e) => {
+    e.preventDefault(); // ضروري جداً للسماح بالإفلات
+    e.dataTransfer.dropEffect = "move";
+  };
 
-    document
-      .querySelectorAll(".about-chemistry, .experiments-section, .hero-overlay")
-      .forEach((el) => observer.observe(el));
+  const matchedReactions = useMemo(() => {
+    if (placedMaterials.length < 2) return [];
+    const names = placedMaterials.map((m) => (m.name || "").toLowerCase().replace(/\s/g, ""));
+    return reactionsData.filter((r) => {
+      if (!r.reactants) return false;
+      const reactants = r.reactants.split("+").map((x) => x.toLowerCase().replace(/\s/g, ""));
+      return reactants.length === names.length && reactants.every((x) => names.includes(x));
+    });
+  }, [placedMaterials]);
 
-    return () => observer.disconnect();
-  }, []);
+  const startReaction = () => {
+    if (!selectedReaction) return;
+    setPhase("fade");
+    setTimeout(() => { 
+      setPlacedMaterials([]); 
+      setResult(selectedReaction); 
+      setPhase("result"); 
+    }, 1600);
+  };
 
   return (
-    <div className="home-container">
-      <div className="hero-video">
-        <video src={video2} autoPlay loop muted />
-        <div className="hero-overlay">
-          <h1>Welcome to Chemistry Lab</h1>
-          <p>Discover chemical experiments, explore compounds in 3D, and learn interactively!</p>
-          <button onClick={goToLab} className="enter-lab-btn">Go to Experiments</button>
+    <div className="lab-scene-root" style={{
+      position: "relative", width: "100vw", height: "100vh",
+      display: "flex", overflow: "hidden",
+      background: "linear-gradient(135deg, #060818 0%, #0d1b3e 50%, #0a1628 100%)",
+      fontFamily: "'Segoe UI', system-ui, sans-serif",
+    }}>
+
+      {/* ── Navbar ── */}
+      <div className="navbar" style={{
+        position: "absolute", top: 0, left: 0, right: 0, zIndex: 1000,
+        height: 56,
+        background: "linear-gradient(90deg, rgba(0,212,255,0.08) 0%, rgba(123,97,255,0.08) 100%)",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(0,212,255,0.18)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 24px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: "linear-gradient(135deg, #00d4ff, #7b61ff)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 18, boxShadow: "0 0 20px rgba(0,212,255,0.4)",
+          }}>⚗️</div>
+          <span style={{ color: "#e0f4ff", fontWeight: 700, fontSize: 18 }}>Simuscience</span>
+        </div>
+
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setLeftOpen(!leftOpen)} style={{
+            padding: "6px 16px", borderRadius: 20, cursor: "pointer",
+            background: leftOpen ? "linear-gradient(135deg,#00d4ff,#7b61ff)" : "rgba(0,212,255,0.12)",
+            color: "#fff", border: "1px solid rgba(0,212,255,0.3)", transition: "0.3s"
+          }}>Materials</button>
+          <button onClick={() => setRightOpen(!rightOpen)} style={{
+            padding: "6px 16px", borderRadius: 20, cursor: "pointer",
+            background: rightOpen ? "linear-gradient(135deg,#00d4ff,#7b61ff)" : "rgba(0,212,255,0.12)",
+            color: "#fff", border: "1px solid rgba(0,212,255,0.3)", transition: "0.3s"
+          }}>Reactions</button>
         </div>
       </div>
 
-      <section className="about-chemistry">
-        <h2 className="section-title">About Chemistry Lab</h2>
-        <p className="section-description">
-          Chemistry Lab is an interactive platform to explore the fascinating world of chemistry.
-          Here you can learn about different types of chemical reactions, observe experiments in 3D, 
-          and enhance your understanding with hands-on simulations.
-        </p>
+      {/* ── Sidebar اليسار ── */}
+      <div className="sidebar-left" style={{
+        position: "absolute", left: 0, top: 56, zIndex: 500,
+        height: "calc(100% - 56px)", width: 280,
+        background: "rgba(6,8,24,0.92)", backdropFilter: "blur(24px)",
+        borderRight: "1px solid rgba(0,212,255,0.15)",
+        transform: leftOpen ? "translateX(0)" : "translateX(-100%)",
+        transition: "transform 0.45s cubic-bezier(0.16,1,0.3,1)",
+        visibility: leftOpen ? "visible" : "hidden"
+      }}>
+        <LeftSidebar />
+      </div>
 
-        <h3 className="section-subtitle">Types of Chemical Reactions</h3>
-        <ul className="reactions-list">
-          <li><strong>Combination:</strong> Two or more substances combine to form a single product.</li>
-          <li><strong>Decomposition:</strong> A single compound breaks down into two or more simpler substances.</li>
-          <li><strong>Single Replacement:</strong> An element replaces another in a compound.</li>
-          <li><strong>Double Replacement:</strong> Exchange of ions between two compounds.</li>
-          <li><strong>Combustion:</strong> A substance reacts with oxygen releasing energy in the form of light or heat.</li>
-        </ul>
-      </section>
+      {/* ── Canvas Container (تم تعديل الخصائص لاستقبال الـ Drop) ── */}
+      <div 
+        style={{ flex: 1, paddingTop: 56, position: "relative" }} 
+        onDrop={handleDrop} 
+        onDragOver={handleDragOver}
+      >
+        <Canvas camera={{ position: [0, 3, 6], fov: 45 }}>
+          <ChemicalBackground />
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 10, 5]} intensity={1.4} />
+          <OrbitControls makeDefault enablePan={false} minDistance={3} maxDistance={12} />
+          <Environment preset="night" />
+          <Beaker reactionStarted={phase !== "idle"} onReady={setBeakerBounds} />
+          
+          {/* هنا يتم إضافة المنطق الخاص برسم المواد المضافة أو الغازات الناتجة */}
+        </Canvas>
+      </div>
 
-      <section className="experiments-section">
-        <h2 className="section-title">Our Experiments</h2>
-        <div className="experiments-container">
-
-          <div className="experiment-card" onClick={goToExperiment1}>
-            <video src={oxidationVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Oxidation-Reduction</h1>
-    <p>A chemical reaction where oxidation and reduction occur simultaneously.</p>
-  </div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment2}>
-            <video src={additionVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Addition Reaction</h1>
-  <p>Two or more reactants combine to form a single product.</p>
-</div>
-
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment3}>
-            <video src={catalyticVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Catalytic Reaction</h1>
-  <p>Reaction accelerated by a catalyst without being consumed.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment4}>
-            <video src={compositionVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Combustion of Hydrocarbons</h1>
-  <p>Hydrocarbon reacts with oxygen releasing energy in the form of heat and light.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment5}>
-            <video src={condensationVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Condensation Reaction</h1>
-  <p>Two molecules combine to form a larger molecule with the release of water.</p>
-</div>
-          </div>
-
-          {/* تابع نفس الطريقة لباقي التجارب */}
-          <div className="experiment-card" onClick={goToExperiment6}>
-            <video src={combustionVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <video src={combustionVideo} autoPlay loop muted />
-  <h1>Combustion</h1>
-  <p>Substance reacts with oxygen producing heat and light.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment7}>
-            <video src={decompositionVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Decomposition Reaction</h1>
-  <p>A single compound breaks down into simpler substances.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment8}>
-            <video src={disproportionationVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Disproportionation</h1>
-  <p>An element in one oxidation state is simultaneously oxidized and reduced.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment9}>
-            <video src={doubleReplacementVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Double Replacement</h1>
-  <p>Exchange of ions between two compounds.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment10}>
-            <video src={hydrolysisVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Hydrolysis</h1>
-  <p>Water breaks chemical bonds in a compound.</p>
-</div>
-
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment11}>
-            <video src={neutralizationVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Neutralization</h1>
-  <p>Acid reacts with base to form salt and water.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment12}>
-            <video src={redoxVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Redox Reaction</h1>
-  <p>Electron transfer between two substances.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment13}>
-            <video src={singleReplacementVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Single Replacement</h1>
-  <p>An element replaces another element in a compound.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment14}>
-            <video src={photochemicalVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Photochemical Reaction</h1>
-  <p>Reaction initiated by light energy.</p>
-</div>
-
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment15}>
-            <video src={precipitationVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Precipitation Reaction</h1>
-  <p>Formation of an insoluble solid from two solutions.</p>
-</div>
-          </div>
-
-          <div className="experiment-card" onClick={goToExperiment16}>
-            <video src={polymerizationVideo} autoPlay loop muted className="experiment-video" />
-            <div className="experiment-overlay">
-            <h1>Polymerization</h1>
-  <p>Monomers join to form a polymer chain.</p>
-</div>
-          </div>
- </div>
-      </section>
+      {/* ── Sidebar اليمين ── */}
+      <div className="sidebar-right" style={{
+        position: "absolute", right: 0, top: 56, zIndex: 500,
+        height: "calc(100% - 56px)", width: 300,
+        background: "rgba(6,8,24,0.92)", backdropFilter: "blur(24px)",
+        borderLeft: "1px solid rgba(0,212,255,0.15)",
+        transform: rightOpen ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.45s cubic-bezier(0.16,1,0.3,1)",
+        boxShadow: rightOpen ? "-4px 0 40px rgba(0,212,255,0.12)" : "none",
+        visibility: rightOpen ? "visible" : "hidden"
+      }}>
+        <RightSidebar
+          reactions={matchedReactions}
+          selectedReaction={selectedReaction}
+          reactionStarted={phase !== "idle"}
+          aiResult={result}
+          onReactionChange={setSelectedReaction}
+          onStartReaction={startReaction}
+          onReset={() => { setPlacedMaterials([]); setPhase("idle"); setResult(null); setSelectedReaction(null); }}
+        />
+      </div>
     </div>
   );
 }
- 

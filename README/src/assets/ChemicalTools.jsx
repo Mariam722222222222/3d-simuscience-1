@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-// 🔹 Images - استبدلي tool1.jpg ... tool10.jpg بالصور الحقيقية بتاعتك
+// 🔹 الصور (تأكدي من صحة المسارات)
 import tool1 from "./beaker-removebg-preview.png";
 import tool2 from "./flask.png";
 import tool3 from "./bureette.png";
@@ -15,78 +15,177 @@ import tool10 from "./microscope-removebg-preview.png";
 import tool11 from "./cylinderjpg-removebg-preview.png";
 import tool12 from "./ptridishjpg.jpg";
 
- 
-// 🔹 Images - استبدلي tool1.jpg ... tool10.jpg بالصور الحقيقية بتاعتك
- 
-
- 
-
- 
-
- 
-
 const tools = [
-  { id: 1, name: "Beaker", image: tool1, description: "Used to hold and mix liquids. Essential for basic lab work." },
-  { id: 2, name: "Flask", image: tool2, description: "Used for mixing and heating solutions. Types include Erlenmeyer and round-bottom." },
-  { id: 3, name: "Burette", image: tool3, description: "Measures precise liquid volumes during titrations." },
-  { id: 4, name: "Test Tube", image: tool4, description: "Holds small chemical samples for reactions and heating." },
-  { id: 5, name: "Bunsen Burner", image: tool5, description: "Provides a flame for heating, sterilization, and combustion." },
-  { id: 6, name: "Balance", image: tool6, description: "Measures mass accurately. Can be digital or mechanical." },
-  { id: 7, name: "Thermometer", image: tool7, description: "Measures temperature in experiments." },
-  { id: 8, name: "Pipette", image: tool8, description: "Transfers small, precise amounts of liquid." },
-  { id: 9, name: "Funnel", image: tool9, description: "Helps pour liquids safely and can be used with filter paper." },
-  { id: 10, name: "Microscope", image: tool10, description: "Observes tiny objects, cells, and microorganisms." },
-  { id: 11, name: "Graduated Cylinder", image: tool11, description: "Measures the volume of liquids accurately." },
-  { id: 12, name: "Petri Dish", image: tool12, description: "Used to culture cells, bacteria, or small plants." }
+  { id: 1, name: "Beaker", image: tool1, description: "Used to hold and mix liquids." },
+  { id: 2, name: "Flask", image: tool2, description: "Used for mixing and heating solutions." },
+  { id: 3, name: "Burette", image: tool3, description: "Measures precise liquid volumes." },
+  { id: 4, name: "Test Tube", image: tool4, description: "Used for small-scale reactions." },
+  { id: 5, name: "Bunsen Burner", image: tool5, description: "Produces a single open gas flame." },
+  { id: 6, name: "Balance", image: tool6, description: "Measures mass very accurately." },
+  { id: 7, name: "Thermometer", image: tool7, description: "Measures the temperature." },
+  { id: 8, name: "Pipette", image: tool8, description: "Transports measured volumes." },
 ];
 
 export default function ChemicalTools() {
   const [selectedTool, setSelectedTool] = useState(null);
 
-  return (
-    <div style={styles.page}>
-      <h1 className="ci">Chemical Laboratory Tools</h1>
+  // مضاعفة المصفوفة لضمان استمرار الحركة بدون فجوات
+  const duplicatedTools = [...tools, ...tools];
 
-      {/* Grid الأدوات */}
-      <div style={styles.grid}>
-        {tools.map(tool => (
-          <div key={tool.id} style={styles.card} onClick={() => setSelectedTool(tool)}>
-            <img src={tool.image} alt={tool.name} style={styles.cardImg} />
-            <h3>{tool.name}</h3>
-          </div>
-        ))}
+  return (
+    <div className="modern-marquee-container">
+      <style>{`
+        .modern-marquee-container {
+          min-height: 50vh;
+          background: #04060f;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          padding: 40px 0;
+        }
+
+        .marquee-title {
+          color: #00d4ff;
+          font-size: 2.5rem;
+          margin-bottom: 40px;
+          text-transform: uppercase;
+          letter-spacing: 4px;
+          text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* حاوية الشريط */
+        .marquee-window {
+          width: 100%;
+          overflow: hidden;
+          display: flex;
+          mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .marquee-track {
+          display: flex;
+          gap: 30px;
+          padding: 20px 0;
+        }
+
+        /* كارت الأداة */
+        .modern-card {
+          min-width: 200px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(0, 212, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          padding: 20px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .modern-card:hover {
+          border: 1px solid rgba(0, 212, 255, 0.5);
+          background: rgba(0, 212, 255, 0.05);
+          transform: translateY(-10px) scale(1.05);
+          box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .modern-card img {
+          width: 100px;
+          height: 100px;
+          object-fit: contain;
+          margin-bottom: 15px;
+          filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.2));
+        }
+
+        .modern-card h3 {
+          color: #fff;
+          font-size: 1.1rem;
+          margin: 0;
+        }
+
+        /* Modal Style */
+        .overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.85);
+          backdrop-filter: blur(10px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 5000;
+        }
+
+        .modal-box {
+          background: #0d1530;
+          padding: 40px;
+          border-radius: 30px;
+          border: 1px solid #00d4ff;
+          text-align: center;
+          max-width: 400px;
+        }
+      `}</style>
+
+      <h2 className="marquee-title">Laboratory Gear</h2>
+
+      <div className="marquee-window">
+        <motion.div 
+          className="marquee-track"
+          animate={{
+            x: [0, -1000], // يتحرك لليسار
+          }}
+          transition={{
+            x: {
+              repeat: Infinity,
+              repeatType: "loop",
+              duration: 20, // السرعة
+              ease: "linear",
+            },
+          }}
+          whileHover={{ animationPlayState: "paused" }} // يتوقف عند مرور الماوس
+        >
+          {duplicatedTools.map((tool, index) => (
+            <div 
+              key={index} 
+              className="modern-card"
+              onClick={() => setSelectedTool(tool)}
+            >
+              <img src={tool.image} alt={tool.name} />
+              <h3>{tool.name}</h3>
+            </div>
+          ))}
+        </motion.div>
       </div>
 
-      {/* Overlay */}
-      {selectedTool && (
-        <div style={styles.overlay} onClick={() => setSelectedTool(null)}>
-          <div style={styles.modal} onClick={e => e.stopPropagation()}>
-            <button style={styles.closeBtn} onClick={() => setSelectedTool(null)}>✖</button>
-
-            <div style={styles.content}>
-              <img src={selectedTool.image} alt={selectedTool.name} style={styles.toolImg} />
-              <div style={styles.textContent}>
-                <h2>{selectedTool.name}</h2>
-                <p>{selectedTool.description}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Popup / Modal */}
+      <AnimatePresence>
+        {selectedTool && (
+          <motion.div 
+            className="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedTool(null)}
+          >
+            <motion.div 
+              className="modal-box"
+              initial={{ scale: 0.8, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img src={selectedTool.image} style={{width: 150}} alt="" />
+              <h2 style={{color: "#00d4ff"}}>{selectedTool.name}</h2>
+              <p style={{color: "#a8c0d8"}}>{selectedTool.description}</p>
+              <button 
+                onClick={() => setSelectedTool(null)}
+                style={{
+                  marginTop: 20, padding: "10px 25px", borderRadius: 20,
+                  border: "none", background: "#00d4ff", cursor: "pointer"
+                }}
+              >Close</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-// 🎨 Styles
-const styles = {
-  page: { padding: "20px", textAlign: "center" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "20px", marginTop: "20px" },
-  card: { padding: "15px", background: "#f5f5f5", borderRadius: "10px", cursor: "pointer" },
-  cardImg: { width: "100px", height: "100px", objectFit: "contain" },
-  overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center" },
-  modal: { background: "rgba(255,255,255,0.95)", borderRadius: "15px", padding: "20px", width: "70%", maxWidth: "700px", textAlign: "left", position: "relative" },
-  closeBtn: { position: "absolute", top: "10px", right: "10px", border: "none", background: "none", fontSize: "20px", cursor: "pointer" },
-  content: { display: "flex", flexDirection: "row", gap: "20px", alignItems: "center" }, // النص جنب الصورة
-  textContent: { flex: 1 }, // النص ياخد المساحة المتبقية
-  toolImg: { width: "300px", borderRadius: "10px" }
-};
