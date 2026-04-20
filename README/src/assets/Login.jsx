@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -9,16 +9,11 @@ export default function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // نحفظ بيانات المستخدم بشكل مؤقت في localStorage
-    const userData = { username: email.split("@")[0], email };
+    const userData = { name: email.split("@")[0], email };
     localStorage.setItem("user", JSON.stringify(userData));
 
-    // لو جاي من Home → redirect to Lab
-    if (location.state?.redirectToLab) {
-      navigate("/lab");
-    } else {
-      navigate("/userprofile");
-    }
+    if (location.state?.redirectToLab) navigate("/LabScene");
+    else navigate("/userprofile");
   };
 
   return (
@@ -26,20 +21,8 @@ export default function Login() {
       <div className="login-container">
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <button type="submit" className="submit-btn">Login</button>
         </form>
       </div>

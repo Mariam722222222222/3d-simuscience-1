@@ -3,15 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
-    age: "",
-    gender: "",
-    city: "",
-    country: ""
+    fullName: "", email: "", password: "", confirmPassword: "",
+    phone: "", age: "", gender: "", city: "", country: ""
   });
 
   const navigate = useNavigate();
@@ -27,16 +20,12 @@ export default function Register() {
       alert("Passwords do not match!");
       return;
     }
-    // نحفظ بيانات المستخدم
-    const userData = { username: formData.fullName, email: formData.email };
+    // حفظ البيانات بمفتاح name ليتعرف عليه ملف الهوم
+    const userData = { name: formData.fullName, email: formData.email };
     localStorage.setItem("user", JSON.stringify(userData));
 
-    // توجيه بعد التسجيل
-    if (location.state?.redirectToLab) {
-      navigate("/lab");
-    } else {
-      navigate("/userprofile");
-    }
+    if (location.state?.redirectToLab) navigate("/LabScene");
+    else navigate("/userprofile");
   };
 
   return (

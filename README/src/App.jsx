@@ -39,6 +39,8 @@ import AcideBasereaction from "./assets/AcideBasereaction";
 import Combination from "./assets/compination";
 import Electrolysis from "./assets/Electrolysis";
 import Substiution from "./assets/Substiution";
+import ReactionCatalog from "./Components/reactionCatalog";
+
 import "./App.css";
 
 function App() {
@@ -69,7 +71,6 @@ function App() {
     </div>
   }
 />
-
          <Route path="/ExperimentsHistory" element={<ExperimentsHistory />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -96,6 +97,8 @@ function App() {
         <Route path="/AcideBasereaction" element={<AcideBasereaction />} />
         <Route path="/Electrolysis" element={<Electrolysis />} />
         <Route path="/Substiution" element={<Substiution />} />
+        <Route path="/catalog" element={<ReactionCatalog />} />
+
         <Route path="/compination" element={<compination />} />
       </Routes>
       <Footer />

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageLoader from "./Components/PageLoader";
 
+// --- استيرادات الفيديوهات (كما هي تماماً) ---
 import video2            from "./assets/img2.mp4";
 import oxidationVideo    from "./assets/oxidation.mp4";
 import additionVideo     from "./assets/Addition.mp4";
@@ -20,7 +21,7 @@ import photochemicalVideo from "./assets/photochemical.mp4";
 import precipitationVideo from "./assets/preception.mp4";
 import polymerizationVideo from "./assets/polymeriation.mp4";
 
-/* ── hook: IntersectionObserver for reveal animations ── */
+/* ── hook: IntersectionObserver للأنيميشن ── */
 function useReveal(threshold = 0.15) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -37,7 +38,7 @@ function useReveal(threshold = 0.15) {
   return [ref, visible];
 }
 
-/* ── Animated counter ── */
+/* ── عداد الأرقام المتحرك ── */
 function Counter({ end, suffix = "", duration = 2000 }) {
   const [count, setCount] = useState(0);
   const [ref, visible] = useReveal(0.3);
@@ -97,24 +98,21 @@ export default function Home() {
     }
   };
 
-  /* section refs */
-  const [heroRef,   heroVis]   = useReveal(0.1);
-  const [aboutRef,  aboutVis]  = useReveal(0.15);
-  const [statsRef,  statsVis]  = useReveal(0.2);
-  const [typesRef,  typesVis]  = useReveal(0.1);
-  const [expRef,    expVis]    = useReveal(0.05);
-  const [ctaRef,    ctaVis]    = useReveal(0.2);
+  const [heroRef, heroVis] = useReveal(0.1);
+  const [aboutRef, aboutVis] = useReveal(0.15);
+  const [statsRef, statsVis] = useReveal(0.2);
+  const [typesRef, typesVis] = useReveal(0.1);
+  const [expRef, expVis] = useReveal(0.05);
+  const [ctaRef, ctaVis] = useReveal(0.2);
 
   return (
     <PageLoader label="Loading Laboratory…">
       <div className="home-dark">
-
+        
         {/* ══════════════════ HERO ══════════════════ */}
         <section className="hd-hero">
           <video className="hd-hero-video" src={video2} autoPlay loop muted playsInline />
           <div className="hd-hero-overlay" />
-
-          {/* floating particles */}
           <div className="hd-particles">
             {Array.from({length: 18}).map((_,i) => (
               <span key={i} className="hd-particle" style={{
@@ -127,33 +125,16 @@ export default function Home() {
             ))}
           </div>
 
-          <div
-            ref={heroRef}
-            className={`hd-hero-content ${heroVis ? "reveal" : ""}`}
-          >
+          <div ref={heroRef} className={`hd-hero-content ${heroVis ? "reveal" : ""}`}>
             <div className="hd-hero-badge">⚗️ Virtual Chemistry Lab</div>
-            <h1 className="hd-hero-title">
-              Explore the World of<br />
-              <span className="hd-gradient-text">Chemistry</span><br />
-              in 3D
-            </h1>
-            <p className="hd-hero-sub">
-              Mix compounds, simulate reactions and discover results in real-time — a hands-on lab experience without the hazards.
-            </p>
+            <h1 className="hd-hero-title">Explore the World of<br /><span className="hd-gradient-text">Chemistry</span><br />in 3D</h1>
+            <p className="hd-hero-sub">Mix compounds and discover results in real-time — a hands-on lab experience without the hazards.</p>
             <div className="hd-hero-actions">
-              <button className="hd-btn-primary" onClick={goToLab}>
-                🚀 Enter the Lab
-              </button>
-              <button className="hd-btn-ghost" onClick={() => document.getElementById("experiments").scrollIntoView({ behavior: "smooth" })}>
-                View Experiments ↓
-              </button>
+              <button className="hd-btn-primary" onClick={goToLab}>🚀 Enter the Lab</button>
+              <button className="hd-btn-ghost" onClick={() => document.getElementById("experiments").scrollIntoView({ behavior: "smooth" })}>View Experiments ↓</button>
             </div>
           </div>
-
-          {/* scroll indicator */}
-          <div className="hd-scroll-hint">
-            <span />
-          </div>
+          <div className="hd-scroll-hint"><span /></div>
         </section>
 
         {/* ══════════════════ STATS ══════════════════ */}
@@ -178,25 +159,14 @@ export default function Home() {
           <div className={`hd-about-text ${aboutVis ? "reveal" : ""}`}>
             <div className="hd-section-tag">About the Platform</div>
             <h2 className="hd-section-title">What is Simuscience?</h2>
-            <p className="hd-about-desc">
-              Simuscience is an interactive 3D virtual chemistry lab built for students and educators. 
-              Drag real compounds into a beaker, pick your conditions, and watch the reaction unfold — 
-              complete with accurate colors, states and safety info.
-            </p>
+            <p className="hd-about-desc">Simuscience is an interactive 3D virtual chemistry lab built for students and educators.</p>
             <ul className="hd-feature-list">
-              {[
-                "🎨 Real compound colors & states",
-                "🤖 AI-powered reaction prediction",
-                "🧪 225+ chemical compounds",
-                "📊 Experiment history & catalog",
-                "🔬 Interactive 3D beaker simulation",
-              ].map((f, i) => (
-                <li key={i} className="hd-feature-item" style={{ animationDelay: `${i*0.1}s` }}>{f}</li>
+              {["🎨 Real compound colors & states", "🤖 AI-powered reaction prediction", "🧪 225+ chemical compounds", "🔬 Interactive 3D beaker simulation"].map((f, i) => (
+                <li key={i} className="hd-feature-item">{f}</li>
               ))}
             </ul>
             <button className="hd-btn-primary" onClick={goToLab}>Start Experimenting →</button>
           </div>
-
           <div className={`hd-about-visual ${aboutVis ? "reveal-right" : ""}`}>
             <div className="hd-beaker-card">
               <div className="hd-beaker-icon">⚗️</div>
@@ -218,11 +188,7 @@ export default function Home() {
           </div>
           <div className="hd-types-grid">
             {REACTION_TYPES.map((rt, i) => (
-              <div
-                key={i}
-                className={`hd-type-card ${typesVis ? "reveal" : ""}`}
-                style={{ transitionDelay: `${i * 0.1}s` }}
-              >
+              <div key={i} className={`hd-type-card ${typesVis ? "reveal" : ""}`} style={{ transitionDelay: `${i * 0.1}s` }}>
                 <span className="hd-type-icon">{rt.icon}</span>
                 <h3 className="hd-type-title">{rt.title}</h3>
                 <p className="hd-type-desc">{rt.desc}</p>
@@ -232,31 +198,27 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══════════════════ EXPERIMENTS ══════════════════ */}
-        <section className="hd-experiments" id="experiments" ref={expRef}>
+        {/* ══════════════════ EXPERIMENTS (Infinite Auto-Scroll) ══════════════════ */}
+        <section className="hd-experiments-infinite" id="experiments" ref={expRef}>
           <div className="hd-section-header">
             <div className="hd-section-tag">Lab Experiments</div>
-            <h2 className="hd-section-title">Our Experiments</h2>
-            <p className="hd-section-sub">Click any experiment to dive in</p>
+            <h2 className="hd-section-title">Our Interactive Experiments</h2>
           </div>
 
-          <div className="hd-exp-grid">
-            {EXPERIMENTS.map((exp, i) => (
-              <div
-                key={i}
-                className={`hd-exp-card ${expVis ? "reveal" : ""}`}
-                style={{ transitionDelay: `${(i % 8) * 0.07}s` }}
-                onClick={() => navigate(exp.route)}
-              >
-                <video src={exp.video} autoPlay loop muted playsInline className="hd-exp-video" />
-                <div className="hd-exp-overlay">
-                  <div className="hd-exp-num">0{i < 9 ? i+1 : i+1}</div>
-                  <h3 className="hd-exp-title">{exp.title}</h3>
-                  <p className="hd-exp-desc">{exp.desc}</p>
-                  <span className="hd-exp-btn">Explore →</span>
+          <div className="infinite-slider-container">
+            <div className="infinite-slider-track">
+              {/* تكرار العناصر مرتين لضمان حركة لا نهائية وسلسة */}
+              {[...EXPERIMENTS, ...EXPERIMENTS].map((exp, i) => (
+                <div key={i} className="exp-infinite-card" onClick={() => navigate(exp.route)}>
+                  <video src={exp.video} autoPlay loop muted playsInline />
+                  <div className="exp-infinite-overlay">
+                    <div className="exp-infinite-num">{i % EXPERIMENTS.length + 1}</div>
+                    <h3 className="exp-infinite-title">{exp.title}</h3>
+                    <p className="exp-infinite-desc">{exp.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
@@ -264,14 +226,118 @@ export default function Home() {
         <section className="hd-cta" ref={ctaRef}>
           <div className={`hd-cta-inner ${ctaVis ? "reveal" : ""}`}>
             <h2 className="hd-cta-title">Ready to Start Experimenting?</h2>
-            <p className="hd-cta-desc">Drag compounds into the virtual beaker and watch chemistry come alive.</p>
-            <button className="hd-btn-primary hd-btn-large" onClick={goToLab}>
-              ⚗️ Open Virtual Lab
-            </button>
+            <button className="hd-btn-primary hd-btn-large" onClick={goToLab}>⚗️ Open Virtual Lab</button>
           </div>
-          <div className="hd-cta-glow" />
         </section>
 
+        {/* ── CSS المدمج للتعديلات الجديدة ── */}
+        <style>{`
+          /* تصميم الشريط اللانهائي */
+          .hd-experiments-infinite {
+            padding: 80px 0 40px 0; /* تقليل المسافة السفلية */
+            overflow: hidden;
+            background: #060818;
+          }
+
+          .infinite-slider-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            padding: 20px 0;
+          }
+
+          .infinite-slider-track {
+            display: flex;
+            /* عرض التراك هو (عرض الكرت + الهامش) * عدد الكروت الكلي */
+            width: calc(320px * ${EXPERIMENTS.length * 2});
+            animation: scroll-infinite 50s linear infinite;
+          }
+
+          /* التوقف عند الوقوف بالماوس */
+          .infinite-slider-container:hover .infinite-slider-track {
+            animation-play-state: paused;
+          }
+
+          .exp-infinite-card {
+            width: 300px;
+            height: 200px;
+            margin: 0 10px;
+            flex-shrink: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+          }
+
+          .exp-infinite-card:hover {
+            transform: translateY(-8px);
+            border-color: #00d4ff;
+          }
+
+          .exp-infinite-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .exp-infinite-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, transparent 70%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+            color: white;
+          }
+
+          .exp-infinite-num {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: 900;
+            opacity: 0.2;
+            color: #00d4ff;
+          }
+
+          .exp-infinite-title {
+            font-size: 16px;
+            margin: 0 0 5px 0;
+            color: #00d4ff;
+          }
+
+          .exp-infinite-desc {
+            font-size: 12px;
+            margin: 0;
+            opacity: 0.8;
+            line-height: 1.4;
+          }
+
+          @keyframes scroll-infinite {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-320px * ${EXPERIMENTS.length})); }
+          }
+
+          /* تقليل المسافات مع الفوتر */
+          .hd-cta {
+            padding: 40px 20px;
+            margin-bottom: 0;
+          }
+
+          /* التجاوب مع الشاشات */
+          @media (max-width: 768px) {
+            .exp-infinite-card {
+              width: 240px;
+              height: 160px;
+            }
+            @keyframes scroll-infinite {
+              100% { transform: translateX(calc(-260px * ${EXPERIMENTS.length})); }
+            }
+          }
+        `}</style>
       </div>
     </PageLoader>
   );
