@@ -15,9 +15,9 @@ import ChemicalTools from "./assets/ChemicalTools";
 import Review from "./assets/Review";
 import UserDashboard from "./assets/UserDashbord";
 import compination from "./assets/compination";
- import LabScene from "./Components/LabScene";
+import LabScene from "./Components/LabScene";
 import ExperimentsHistory from "./Components/ExperimentsHistory";
- 
+
 // Experiments Pages
 import OxidationReduction from "./assets/Oxide";
 import Addition from "./assets/Addition";
@@ -41,6 +41,8 @@ import Electrolysis from "./assets/Electrolysis";
 import Substiution from "./assets/Substiution";
 import ReactionCatalog from "./Components/reactionCatalog";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import "./App.css";
 
 function App() {
@@ -62,45 +64,254 @@ function App() {
       />
 
       <Routes>
+
+        {/* 🏠 Home (مفتوحة) */}
         <Route path="/" element={<Home />} />
-  <Route
-  path="/LabScene"
-  element={
-    <div className="lab-page">
-      <LabScene />
-    </div>
-  }
-/>
-         <Route path="/ExperimentsHistory" element={<ExperimentsHistory />} />
+
+        {/* 🔐 Protected Routes */}
+
+        <Route
+          path="/LabScene"
+          element={
+            <ProtectedRoute>
+              <div className="lab-page">
+                <LabScene />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ExperimentsHistory"
+          element={
+            <ProtectedRoute>
+              <ExperimentsHistory />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/userprofile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/review"
+          element={
+            <ProtectedRoute>
+              <Review />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ChemicalTools"
+          element={
+            <ProtectedRoute>
+              <ChemicalTools />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/oxidation-reduction"
+          element={
+            <ProtectedRoute>
+              <OxidationReduction />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Addition"
+          element={
+            <ProtectedRoute>
+              <Addition />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Catalytic"
+          element={
+            <ProtectedRoute>
+              <Catalytic />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Compustionofhydro"
+          element={
+            <ProtectedRoute>
+              <Compustionofhydro />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Condinsation"
+          element={
+            <ProtectedRoute>
+              <Condinsation />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Cumbustion"
+          element={
+            <ProtectedRoute>
+              <Cumbustion />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Decomposition"
+          element={
+            <ProtectedRoute>
+              <Decomposition />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Disproportionation"
+          element={
+            <ProtectedRoute>
+              <Disproportionation />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/DoubleReplacment"
+          element={
+            <ProtectedRoute>
+              <DoubleReplacment />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Hydrolysis"
+          element={
+            <ProtectedRoute>
+              <Hydrolysis />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Neutrlization"
+          element={
+            <ProtectedRoute>
+              <Neutrlization />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Redox"
+          element={
+            <ProtectedRoute>
+              <Redox />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/SingleReplacement"
+          element={
+            <ProtectedRoute>
+              <SingleReplacement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/photochmical"
+          element={
+            <ProtectedRoute>
+              <PhotoChemical />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/preceptition"
+          element={
+            <ProtectedRoute>
+              <Precipitation />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/polymerization"
+          element={
+            <ProtectedRoute>
+              <Polymerization />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/AcideBasereaction"
+          element={
+            <ProtectedRoute>
+              <AcideBasereaction />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Electrolysis"
+          element={
+            <ProtectedRoute>
+              <Electrolysis />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/Substiution"
+          element={
+            <ProtectedRoute>
+              <Substiution />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/catalog"
+          element={
+            <ProtectedRoute>
+              <ReactionCatalog />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/compination"
+          element={
+            <ProtectedRoute>
+              <compination />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🔓 Login/Register (بدون حماية) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/userprofile" element={<UserProfile />} />
-        <Route path="/review" element={<Review />} />
-        <Route path="/ChemicalTools" element={<ChemicalTools />} />
 
-        <Route path="/oxidation-reduction" element={<OxidationReduction />} />
-        <Route path="/Addition" element={<Addition />} />
-        <Route path="/Catalytic" element={<Catalytic />} />
-        <Route path="/Compustionofhydro" element={<Compustionofhydro />} />
-        <Route path="/Condinsation" element={<Condinsation />} />
-        <Route path="/Cumbustion" element={<Cumbustion />} />
-        <Route path="/Decomposition" element={<Decomposition />} />
-        <Route path="/Disproportionation" element={<Disproportionation />} />
-        <Route path="/DoubleReplacment" element={<DoubleReplacment />} />
-        <Route path="/Hydrolysis" element={<Hydrolysis />} />
-        <Route path="/Neutrlization" element={<Neutrlization />} />
-        <Route path="/Redox" element={<Redox />} />
-        <Route path="/SingleReplacement" element={<SingleReplacement />} />
-        <Route path="/photochmical" element={<PhotoChemical />} />
-        <Route path="/preceptition" element={<Precipitation />} />
-        <Route path="/polymerization" element={<Polymerization />} />
-        <Route path="/AcideBasereaction" element={<AcideBasereaction />} />
-        <Route path="/Electrolysis" element={<Electrolysis />} />
-        <Route path="/Substiution" element={<Substiution />} />
-        <Route path="/catalog" element={<ReactionCatalog />} />
-
-        <Route path="/compination" element={<compination />} />
       </Routes>
+
       <Footer />
     </Router>
   );

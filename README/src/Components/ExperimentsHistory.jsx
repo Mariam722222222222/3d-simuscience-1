@@ -297,7 +297,7 @@ const ExperimentsHistory = () => {
           🧪 Experiment History
         </h2>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div style={userBadgeStyle}>👤 Rahma Jamal</div>
+          <div style={userBadgeStyle}>👤 Rahma gamal</div>
           <button onClick={() => navigate("/LabScene")} style={btnSecondary}>
             Back to Lab
           </button>

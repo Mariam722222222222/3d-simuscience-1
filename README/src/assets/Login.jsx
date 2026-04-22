@@ -1,21 +1,32 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { loginUser } from "../api/auth";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    const userData = { name: email.split("@")[0], email };
-    localStorage.setItem("user", JSON.stringify(userData));
 
-    if (location.state?.redirectToLab) navigate("/LabScene");
-    else navigate("/userprofile");
-  };
+const handleLogin = async (e) => {
+  e.preventDefault();
 
+  try {
+    const data = await loginUser({
+      email,
+      password,
+    });
+
+    const token = data.access_token;
+
+    localStorage.setItem("token", token);
+
+    navigate("/userprofile");
+
+  } catch (error) {
+    alert("Invalid email or password");
+  }
+};
   return (
     <div className="login-page">
       <div className="login-container">

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { registerUser } from "../api/auth";
 export default function Register() {
   const [formData, setFormData] = useState({
     fullName: "", email: "", password: "", confirmPassword: "",
@@ -14,19 +14,37 @@ export default function Register() {
     setFormData({...formData, [e.target.name]: e.target.value});
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    // حفظ البيانات بمفتاح name ليتعرف عليه ملف الهوم
-    const userData = { name: formData.fullName, email: formData.email };
-    localStorage.setItem("user", JSON.stringify(userData));
+ 
 
-    if (location.state?.redirectToLab) navigate("/LabScene");
-    else navigate("/userprofile");
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  try {
+    const payload = {
+      full_name: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+      confirm_password: formData.confirmPassword,
+    };
+
+    console.log("REGISTER PAYLOAD:", payload);
+
+    await registerUser(payload);
+
+    alert("Registered successfully, please login");
+
+    navigate("/login");
+
+  } catch (error) {
+    console.log("REGISTER ERROR:", error);
+    alert(error.message || "Register failed");
+  }
+};
 
   return (
     <div className="register-page">
