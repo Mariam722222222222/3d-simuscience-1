@@ -7,7 +7,6 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-
 const handleLogin = async (e) => {
   e.preventDefault();
 
@@ -19,9 +18,28 @@ const handleLogin = async (e) => {
 
     const token = data.access_token;
 
+    // ✅ خزني التوكن
     localStorage.setItem("token", token);
 
-    navigate("/userprofile");
+    // ⭐ مهم: خزني بيانات المستخدم
+    const userData = {
+      username: data.user?.username || email.split("@")[0],
+      email: data.user?.email || email,
+    };
+
+    localStorage.setItem("user", JSON.stringify(userData));
+
+     // 🔥 مهم جدًا لتحديث الـ navbar فورًا
+// بعد حفظ user
+localStorage.setItem("user", JSON.stringify(userData));
+localStorage.setItem("token", token);
+
+// 👇 مهم جداً
+window.dispatchEvent(new Event("userChanged"));
+
+navigate("/");
+    // روحي للهوم أو البروفايل
+    navigate("/");
 
   } catch (error) {
     alert("Invalid email or password");
