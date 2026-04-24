@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
 
 export default function NavBar() {
@@ -10,6 +10,7 @@ export default function NavBar() {
 
   const dropdownRef = useRef();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const closeMenu = () => setIsOpen(false);
 
@@ -62,7 +63,7 @@ export default function NavBar() {
     setDropdownOpen(false);
     setIsOpen(false);
     window.dispatchEvent(new Event("userChanged"));
-    window.location.href = "/";
+    navigate("/");
   };
 
   const navLinks = [
