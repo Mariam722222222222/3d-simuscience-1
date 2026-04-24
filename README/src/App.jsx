@@ -9,7 +9,6 @@ import Lab from "./assets/Lab";
 import Elements from "./assets/Elements";
 import Login from "./assets/Login";
 import Register from "./assets/Register";
-import UserProfile from "./assets/UserProfile";
 import ChemistryLab from "./assets/chemistryLab";
 import ChemicalTools from "./assets/ChemicalTools";
 import Review from "./assets/Review";
@@ -90,14 +89,6 @@ function App() {
           }
         />
 
-        <Route
-          path="/userprofile"
-          element={
-            <ProtectedRoute>
-              <UserProfile />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/review"
